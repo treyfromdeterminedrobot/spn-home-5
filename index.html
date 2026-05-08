@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SERVPRONET</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://use.typekit.net/qkw5jol.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #faf6f0;
+    --paper-2: #f1ece2;
+    --surface: #ffffff;
+    --ink: #2a1f1d;
+    --ink-2: #4a3d3a;
+    --ink-3: #6e635f;
+    --muted: #a39891;
+    --line: #e6dccd;
+    --line-soft: #f0e8d8;
+    --plum: #4a1f30;
+    --plum-deep: #2e1018;
+    --accent: #d56a3a;
+    --accent-soft: #fbe5d3;
+    --moss: #5a6b3a;
+    --moss-soft: #d9dfc9;
+    --pattern: #c9b89a;
+    --serif: 'Fraunces', Georgia, serif;
+    --graphy: 'graphy', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--paper); color: var(--ink);
+    font-family: var(--graphy); -webkit-font-smoothing: antialiased;
+  }
+  body { min-height: 100vh; padding-right: 64px; }
+
+  /* === RIGHT TOOLBAR === */
+  .toolbar {
+    background: var(--ink); padding: 24px 0;
+    display: flex; flex-direction: column; align-items: center; gap: 22px;
+    position: fixed; top: 0; right: 0; bottom: 0; width: 64px; z-index: 50;
+  }
+  .toolbar-icon { width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.2s ease; }
+  .toolbar-icon:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.95); }
+  .toolbar-icon svg { width: 17px; height: 17px; }
+  .toolbar-divider { width: 22px; height: 1px; background: rgba(255,255,255,0.1); }
+
+  /* === TOP NAV === */
+  .top-nav {
+    padding: 0 56px;
+    height: 72px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+    position: sticky; top: 0; z-index: 40;
+  }
+  .nav-left { display: flex; align-items: center; gap: 56px; }
+  .nameplate {
+    font-family: var(--graphy); font-weight: 900;
+    font-size: 16px; letter-spacing: 0.04em; text-transform: uppercase;
+    padding-right: 32px;
+    border-right: 1px solid var(--line);
+  }
+  .nameplate span { color: var(--accent); }
+  .nav-links { display: flex; gap: 4px; }
+  .nav-link {
+    padding: 8px 14px; font-family: var(--graphy);
+    font-size: 13px; font-weight: 400; color: var(--ink-2);
+    text-decoration: none; transition: color 0.15s ease;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .nav-link:hover { color: var(--ink); }
+  .nav-link svg { width: 9px; height: 9px; opacity: 0.45; }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .icon-btn {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--line);
+    display: grid; place-items: center; cursor: pointer;
+    color: var(--ink-2); position: relative;
+  }
+  .icon-btn:hover { background: var(--paper-2); }
+  .icon-btn svg { width: 16px; height: 16px; }
+  .icon-btn .dot-indicator { position: absolute; top: 8px; right: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); }
+  .avatar {
+    height: 38px; padding: 0 16px 0 4px;
+    border-radius: 999px; background: var(--surface);
+    border: 1px solid var(--line);
+    display: flex; align-items: center; gap: 10px; cursor: pointer;
+  }
+  .avatar:hover { background: var(--paper-2); }
+  .avatar-circle {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--ink); color: var(--paper);
+    display: grid; place-items: center; font-size: 11px; font-weight: 600;
+  }
+  .avatar-name { font-family: var(--graphy); font-size: 13px; color: var(--ink); }
+  .avatar svg { width: 11px; height: 11px; color: var(--muted); }
+
+  /* === SEARCH ROW (under nav, prominent) === */
+  .search-row {
+    padding: 56px 56px 40px;
+    border-bottom: 1px solid var(--line);
+  }
+  .search-row-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .search-eyebrow {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 12px; justify-content: center;
+  }
+  .search-eyebrow::before, .search-eyebrow::after {
+    content: ''; flex: 1; max-width: 60px; height: 1px; background: var(--line);
+  }
+  .header-search {
+    display: flex; align-items: center; gap: 24px;
+    padding: 0 8px 24px;
+    border-bottom: 2px solid var(--ink);
+    transition: border-color 0.2s ease;
+  }
+  .header-search:focus-within { border-color: var(--accent); }
+  .header-search svg.search-icon { width: 32px; height: 32px; color: var(--ink); flex-shrink: 0; }
+  .header-search input {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-family: var(--serif); font-size: 40px; font-weight: 300;
+    color: var(--ink); font-style: italic; letter-spacing: -0.02em;
+  }
+  .header-search input::placeholder { color: var(--muted); font-style: italic; }
+  .header-search-hint {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+    color: var(--muted); text-transform: uppercase; white-space: nowrap;
+    padding-left: 20px; border-left: 1px solid var(--line);
+  }
+
+  /* === MAIN CONTAINER === */
+  main { padding: 56px 56px 80px; }
+
+  /* ====================================================
+     BANNER — "Must Read" in the spirit of the reference
+     Editorial, big serif, atmospheric background
+     ==================================================== */
+  .banner {
+    position: relative;
+    background:
+      radial-gradient(circle at 85% 50%, rgba(213, 106, 58, 0.15), transparent 50%),
+      radial-gradient(circle at 15% 80%, rgba(74, 31, 48, 0.08), transparent 60%),
+      linear-gradient(135deg, var(--paper-2) 0%, var(--paper) 100%);
+    padding: 56px 56px 0;
+    margin-bottom: 80px;
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .banner::before {
+    content: '';
+    position: absolute; top: 0; right: 0; bottom: 0; width: 35%;
+    background-image:
+      repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(213, 106, 58, 0.06) 8px, rgba(213, 106, 58, 0.06) 9px);
+    pointer-events: none;
+  }
+  .banner-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 48px;
+    position: relative;
+  }
+  .banner-title-block { max-width: 60%; }
+  .banner-eyebrow {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--ink-2);
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .banner-eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--ink); }
+  .banner-title {
+    font-family: var(--serif); font-size: 96px; font-weight: 400;
+    letter-spacing: -0.04em; line-height: 0.92; color: var(--plum);
+  }
+  .banner-title em {
+    font-style: italic; font-weight: 300;
+  }
+  .banner-stat {
+    text-align: right;
+    position: relative;
+  }
+  .banner-stat-label {
+    font-family: var(--graphy); font-size: 13px; color: var(--ink-2);
+    margin-bottom: 8px;
+  }
+  .banner-stat-value {
+    font-family: var(--serif); font-size: 64px; font-weight: 400;
+    color: var(--plum); letter-spacing: -0.03em; line-height: 1;
+  }
+  .banner-stat-pill {
+    margin-top: 16px;
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent-soft); color: var(--accent);
+    padding: 8px 18px; border-radius: 999px;
+    font-family: var(--graphy); font-size: 12px; font-weight: 500;
+  }
+  .banner-stat-pill .arrow {
+    width: 18px; height: 18px; border-radius: 50%; background: var(--accent);
+    color: var(--paper); display: grid; place-items: center; font-size: 11px;
+  }
+
+  /* Stepped value cards row */
+  .banner-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--line);
+    position: relative;
+  }
+  .news-cell {
+    border-right: 1px solid var(--line);
+    padding-top: 48px;
+    padding-bottom: 32px;
+    padding-left: 20px; padding-right: 20px;
+    position: relative;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.2s ease;
+  }
+  .news-cell:hover { background: rgba(255, 255, 255, 0.4); }
+  .news-cell:last-child { border-right: none; }
+
+  /* Stepped offset for visual rhythm */
+  .news-cell.step-1 { margin-top: 40px; }
+  .news-cell.step-2 { margin-top: 0; }
+  .news-cell.step-3 { margin-top: 70px; }
+  .news-cell.step-4 { margin-top: 30px; }
+  .news-cell.step-5 { margin-top: 60px; }
+  .news-cell.step-6 { margin-top: 80px; }
+
+  .news-cell-amount {
+    font-family: var(--serif); font-size: 56px; font-weight: 400;
+    color: var(--plum); letter-spacing: -0.03em; line-height: 1;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .news-cell-fill {
+    position: absolute;
+    left: 0; right: 0;
+    height: 80px;
+    background-image:
+      repeating-linear-gradient(45deg, transparent, transparent 6px, var(--pattern) 6px, var(--pattern) 7px);
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+    margin-top: 4px;
+  }
+  .news-cell-date {
+    font-family: var(--graphy); font-weight: 600;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink); margin-bottom: 18px;
+    padding-top: 32px;
+  }
+  .news-cell-items {
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .news-cell-item {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 8px;
+  }
+  .news-cell-item-label {
+    font-family: var(--graphy); font-size: 13px; color: var(--ink);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .news-cell-item-time {
+    font-family: var(--graphy); font-size: 11px; color: var(--muted);
+    margin-top: 2px;
+  }
+  .news-cell-item-amount {
+    font-family: var(--graphy); font-size: 13px; color: var(--ink);
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  /* === SECTION MARKERS === */
+  .section-marker {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding-bottom: 18px; border-bottom: 1px solid var(--line);
+    margin-bottom: 32px;
+  }
+  .section-marker-left { display: flex; align-items: baseline; gap: 18px; }
+  .section-num { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--muted); }
+  .section-name { font-family: var(--serif); font-size: 24px; font-weight: 400; font-style: italic; letter-spacing: -0.01em; }
+  .section-meta { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; }
+
+  /* === BELOW THE BANNER: 2-COLUMN CONTENT === */
+  .content-split { display: grid; grid-template-columns: 1.4fr 1fr; gap: 56px; }
+  .news-col { display: flex; flex-direction: column; gap: 64px; }
+  .ops-col { display: flex; flex-direction: column; gap: 48px; }
+
+  /* FEED FILTERS */
+  .feed-filters { display: flex; align-items: center; gap: 4px; margin-bottom: 32px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+  .filter-chip { font-family: var(--graphy); font-size: 13px; color: var(--ink-3); padding: 12px 18px; cursor: pointer; border-bottom: 1px solid transparent; margin-bottom: -1px; transition: all 0.15s ease; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; }
+  .filter-chip:hover { color: var(--ink); }
+  .filter-chip.active { color: var(--ink); border-bottom-color: var(--ink); font-weight: 500; }
+  .filter-chip .count { font-family: var(--mono); font-size: 10px; color: var(--muted); background: var(--paper-2); padding: 2px 6px; border-radius: 999px; letter-spacing: 0.06em; }
+  .filter-chip.active .count { background: var(--ink); color: var(--paper); }
+
+  .feed-list { display: flex; flex-direction: column; }
+  .feed-item { padding: 24px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 90px 1fr auto; gap: 32px; align-items: start; cursor: pointer; text-decoration: none; color: inherit; transition: padding 0.2s ease; }
+  .feed-item:hover { padding-left: 6px; }
+  .feed-item:last-child { border-bottom: none; }
+  .feed-item-tag { font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); padding-top: 4px; }
+  .feed-item-content { display: flex; flex-direction: column; gap: 6px; }
+  .feed-item-title { font-family: var(--serif); font-size: 19px; font-weight: 400; line-height: 1.3; letter-spacing: -0.015em; }
+  .feed-item-summary { font-size: 13px; line-height: 1.5; color: var(--ink-3); max-width: 75%; }
+  .feed-item-date { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; padding-top: 6px; text-align: right; white-space: nowrap; display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+  .new-mark { display: inline-flex; align-items: center; gap: 4px; color: var(--accent); font-weight: 500; }
+  .new-mark::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+  /* OPS — same patterns as before */
+  .ops-section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .ops-section-name { font-family: var(--serif); font-size: 16px; font-weight: 400; font-style: italic; letter-spacing: -0.01em; }
+  .ops-section-meta { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; }
+
+  .storm-banner { background: var(--moss); color: var(--paper); padding: 22px 24px; position: relative; overflow: hidden; cursor: pointer; text-decoration: none; display: block; transition: background 0.2s ease; }
+  .storm-banner:hover { background: #4a5a30; }
+  .storm-banner svg.map-bg { position: absolute; right: -8px; bottom: -8px; width: 130px; height: 100px; opacity: 0.5; pointer-events: none; }
+  .storm-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; position: relative; }
+  .storm-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--moss-soft); box-shadow: 0 0 0 0 rgba(217,223,201,0.7); animation: stormpulse 2s infinite; }
+  @keyframes stormpulse {
+    0% { box-shadow: 0 0 0 0 rgba(217,223,201,0.7); }
+    70% { box-shadow: 0 0 0 8px rgba(217,223,201,0); }
+    100% { box-shadow: 0 0 0 0 rgba(217,223,201,0); }
+  }
+  .storm-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(245,242,236,0.7); }
+  .storm-pill { margin-left: auto; font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; background: rgba(255,255,255,0.12); padding: 3px 8px; border-radius: 999px; }
+  .storm-title { font-family: var(--serif); font-size: 20px; font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; margin-bottom: 6px; position: relative; max-width: 70%; }
+  .storm-detail { font-size: 12.5px; line-height: 1.5; color: rgba(245,242,236,0.78); max-width: 70%; position: relative; }
+
+  .health-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .health-card { background: var(--surface); border: 1px solid var(--line); padding: 18px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: all 0.2s ease; text-decoration: none; color: inherit; position: relative; }
+  .health-card:hover { background: var(--paper-2); border-color: var(--ink); }
+  .health-card.feature { grid-column: span 2; background: var(--ink); color: var(--paper); border-color: var(--ink); padding: 24px; }
+  .health-card.feature:hover { background: #2a2620; }
+  .health-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+  .health-card.feature .health-label { color: rgba(245,242,236,0.5); }
+  .health-value { font-family: var(--graphy); font-size: 36px; font-weight: 600; letter-spacing: -0.025em; line-height: 1; margin-top: 4px; }
+  .health-card.feature .health-value { color: var(--paper); font-size: 52px; }
+  .health-value .unit { font-family: var(--graphy); font-size: 16px; font-weight: 400; color: var(--muted); margin-left: 2px; }
+  .health-card.feature .health-value .unit { color: rgba(245,242,236,0.45); }
+  .health-status { font-size: 11px; color: var(--ink-3); margin-top: auto; padding-top: 8px; display: flex; align-items: center; gap: 6px; }
+  .health-card.feature .health-status { color: rgba(245,242,236,0.7); }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .status-dot.green { background: var(--moss); }
+  .status-dot.amber { background: #c98a16; }
+  .status-dot.red { background: #c4422c; }
+
+  .audit-bars { display: flex; gap: 2px; margin-top: 12px; height: 4px; }
+  .audit-bars span { display: block; }
+  .audit-bars .b-green { background: #8ab06d; flex: 38; }
+  .audit-bars .b-amber { background: #d9b15c; flex: 8; }
+  .audit-bars .b-red { background: #d97561; flex: 1; }
+
+  .audit-breakdown { display: flex; gap: 24px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(245,242,236,0.1); }
+  .audit-stat .num { font-family: var(--graphy); font-size: 20px; font-weight: 600; color: var(--paper); }
+  .audit-stat .num.amber { color: #d9b15c; }
+  .audit-stat .num.red { color: #d97561; }
+  .audit-stat .lbl { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(245,242,236,0.5); margin-top: 4px; }
+
+  .health-card.tool { background: var(--paper-2); }
+  .tool-name-line { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+  .tool-name { font-family: var(--serif); font-size: 18px; font-weight: 400; letter-spacing: -0.01em; }
+  .tool-arrow-mini { font-family: var(--mono); font-size: 10px; }
+
+  .hub-list { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+  .hub-row { padding: 14px 0; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 14px; cursor: pointer; text-decoration: none; color: inherit; transition: padding 0.2s ease; }
+  .hub-row:hover { padding-left: 6px; }
+  .hub-num { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--muted); width: 24px; }
+  .hub-info { flex: 1; }
+  .hub-name { font-family: var(--serif); font-size: 17px; font-weight: 400; letter-spacing: -0.01em; line-height: 1.2; }
+  .hub-tag { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+  .hub-arrow { font-family: var(--mono); font-size: 13px; }
+
+  .resource-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .resource-btn { background: var(--surface); border: 1px solid var(--line); padding: 14px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; text-decoration: none; color: inherit; transition: all 0.2s ease; }
+  .resource-btn:hover { background: var(--paper-2); border-color: var(--ink); }
+  .resource-icon { width: 28px; height: 28px; background: var(--paper-2); display: grid; place-items: center; color: var(--ink); margin-bottom: 4px; }
+  .resource-icon svg { width: 13px; height: 13px; }
+  .resource-name { font-family: var(--serif); font-size: 14px; font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; }
+  .resource-sub { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
+
+  .lookup-row { background: var(--ink); color: var(--paper); padding: 18px 22px; display: flex; align-items: center; gap: 16px; text-decoration: none; cursor: pointer; transition: background 0.2s ease; }
+  .lookup-row:hover { background: #2a2620; }
+  .lookup-search { width: 36px; height: 36px; border-radius: 50%; background: rgba(245,242,236,0.08); display: grid; place-items: center; color: var(--paper); }
+  .lookup-search svg { width: 16px; height: 16px; }
+  .lookup-text { flex: 1; }
+  .lookup-name { font-family: var(--serif); font-size: 17px; font-weight: 400; letter-spacing: -0.01em; }
+  .lookup-sub { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(245,242,236,0.55); margin-top: 2px; }
+  .lookup-arrow-letter { font-family: var(--mono); font-size: 14px; color: var(--paper); }
+
+  .forum-list { display: flex; flex-direction: column; }
+  .forum-item { padding: 14px 0; border-bottom: 1px solid var(--line); cursor: pointer; transition: padding 0.2s ease; text-decoration: none; color: inherit; display: block; }
+  .forum-item:hover { padding-left: 4px; }
+  .forum-item:last-child { border-bottom: none; }
+  .forum-q { font-family: var(--serif); font-size: 14px; font-weight: 400; line-height: 1.35; letter-spacing: -0.005em; margin-bottom: 6px; }
+  .forum-meta { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .verified-mark { color: var(--moss); display: inline-flex; align-items: center; gap: 4px; }
+  .verified-mark::before { content: '✓'; font-weight: 700; }
+
+  .quick-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .quick-link { padding: 16px; cursor: pointer; text-decoration: none; color: inherit; border: 1px solid var(--line); background: var(--surface); transition: all 0.2s ease; display: flex; flex-direction: column; gap: 4px; }
+  .quick-link.accent { background: var(--accent); color: var(--paper); border: none; }
+  .quick-link.dark { background: var(--ink); color: var(--paper); border: none; }
+  .quick-link:hover { transform: translateY(-1px); }
+  .quick-link .ql-name { font-family: var(--serif); font-size: 15px; font-weight: 400; letter-spacing: -0.01em; }
+  .quick-link .ql-sub { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.7; }
+
+  .customize-link { padding: 14px 16px; border: 1px dashed var(--line); background: transparent; cursor: pointer; text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s ease; }
+  .customize-link:hover { border-color: var(--ink); }
+  .customize-link strong { font-family: var(--serif); font-size: 13px; font-weight: 400; }
+  .customize-link span { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; }
+
+  .page-footer { margin-top: 96px; padding-top: 28px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="top-nav">
+  <div class="nav-left">
+    <div class="nameplate">SERVPRO<span>NET</span></div>
+    <div class="nav-links">
+      <a href="#" class="nav-link">News & Updates <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></a>
+      <a href="#" class="nav-link">Work Resources <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></a>
+      <a href="#" class="nav-link">National Accounts <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></a>
+      <a href="#" class="nav-link">People, Culture, & Support <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></a>
+      <a href="#" class="nav-link">Learning & Training <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></a>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg></div>
+    <div class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg><span class="dot-indicator"></span></div>
+    <div class="avatar">
+      <div class="avatar-circle">TR</div>
+      <span class="avatar-name">Trey</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+  </div>
+</nav>
+
+<!-- SEARCH ROW -->
+<div class="search-row">
+  <div class="search-row-inner">
+    <div class="search-eyebrow">Search SERVPRONET</div>
+    <div class="header-search">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="text" placeholder="What do you need?">
+      <span class="header-search-hint">Press / to focus</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- BANNER (Must Read) -->
+  <section class="banner">
+    <div class="banner-header">
+      <div class="banner-title-block">
+        <div class="banner-eyebrow">§ Must Read · Tier One</div>
+        <h1 class="banner-title">Today's<br><em>essentials.</em></h1>
+      </div>
+      <div class="banner-stat">
+        <div class="banner-stat-label">Items needing your attention</div>
+        <div class="banner-stat-value">06</div>
+        <div class="banner-stat-pill">
+          <span class="arrow">↑</span>
+          <span>3 new since Monday</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="banner-grid">
+      <a href="#" class="news-cell step-1">
+        <div class="news-cell-amount">01</div>
+        <div class="news-cell-date">Mon · May 5</div>
+        <div class="news-cell-items">
+          <div>
+            <div class="news-cell-item-label">APA recertification window opened</div>
+            <div class="news-cell-item-time">Compliance · 22 days left</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="news-cell step-2">
+        <div class="news-cell-amount">02</div>
+        <div class="news-cell-date">Tue · May 6</div>
+        <div class="news-cell-items">
+          <div>
+            <div class="news-cell-item-label">USAA mold scope template revised</div>
+            <div class="news-cell-item-time">National Accounts</div>
+          </div>
+          <div>
+            <div class="news-cell-item-label">DryBook v8.4 release</div>
+            <div class="news-cell-item-time">Platform</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="news-cell step-3">
+        <div class="news-cell-amount">03</div>
+        <div class="news-cell-date">Wed · May 7</div>
+        <div class="news-cell-items">
+          <div>
+            <div class="news-cell-item-label">Allstate rate schedule update</div>
+            <div class="news-cell-item-time">Effective June 1</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="news-cell step-4">
+        <div class="news-cell-amount">04</div>
+        <div class="news-cell-date">Thu · May 8</div>
+        <div class="news-cell-items">
+          <div>
+            <div class="news-cell-item-label">State Farm audit format change</div>
+            <div class="news-cell-item-time">Effective May 12 · All franchises</div>
+          </div>
+          <div>
+            <div class="news-cell-item-label">Storm watch: Gulf Coast</div>
+            <div class="news-cell-item-time">Region 4 · Active</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="news-cell step-5">
+        <div class="news-cell-amount">05</div>
+        <div class="news-cell-date">Fri · May 9</div>
+        <div class="news-cell-items">
+          <div>
+            <div class="news-cell-item-label">Liberty Mutual subrogation portal migration</div>
+            <div class="news-cell-item-time">Action by May 20</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="news-cell step-6">
+        <div class="news-cell-amount">06</div>
+        <div class="news-cell-date">Sat · May 10</div>
+        <div class="news-cell-items">
+          <div>
+            <div class="news-cell-item-label">Owner Summit registration extended</div>
+            <div class="news-cell-item-time">Events · Closes June 15</div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- BELOW THE BANNER -->
+  <div class="content-split">
+
+    <div class="news-col">
+      <section class="feed-section">
+        <div class="section-marker">
+          <div class="section-marker-left">
+            <span class="section-num">§ 02</span>
+            <h2 class="section-name">The feed</h2>
+          </div>
+          <span class="section-meta">Updates · resources · suggestions</span>
+        </div>
+
+        <div class="feed-filters">
+          <span class="filter-chip active">All <span class="count">24</span></span>
+          <span class="filter-chip">Bulletins <span class="count">8</span></span>
+          <span class="filter-chip">Compliance <span class="count">4</span></span>
+          <span class="filter-chip">Training <span class="count">5</span></span>
+          <span class="filter-chip">Marketing <span class="count">3</span></span>
+          <span class="filter-chip">Suggested <span class="count">4</span></span>
+        </div>
+
+        <div class="feed-list">
+          <a href="#" class="feed-item">
+            <span class="feed-item-tag">Bulletin · State Farm</span>
+            <div class="feed-item-content">
+              <h4 class="feed-item-title">Photo documentation requirements expanded for water mitigation Cat 3.</h4>
+              <p class="feed-item-summary">Now requires geotagged photos of moisture readings at 24, 48, and 72-hour intervals.</p>
+            </div>
+            <div class="feed-item-date">
+              <span class="new-mark">New</span>
+              <span>2d ago</span>
+            </div>
+          </a>
+
+          <a href="#" class="feed-item">
+            <span class="feed-item-tag">Bulletin · Allstate</span>
+            <div class="feed-item-content">
+              <h4 class="feed-item-title">Updated rate schedule for emergency mitigation services.</h4>
+              <p class="feed-item-summary">Line-item rate adjustments effective for jobs assigned after June 1, 2026.</p>
+            </div>
+            <div class="feed-item-date">
+              <span class="new-mark">New</span>
+              <span>4d ago</span>
+            </div>
+          </a>
+
+          <a href="#" class="feed-item">
+            <span class="feed-item-tag">Compliance</span>
+            <div class="feed-item-content">
+              <h4 class="feed-item-title">New OSHA respiratory protection training due Q2.</h4>
+              <p class="feed-item-summary">All field staff must complete the updated module before June 30.</p>
+            </div>
+            <div class="feed-item-date"><span>Yesterday</span></div>
+          </a>
+
+          <a href="#" class="feed-item">
+            <span class="feed-item-tag">Training</span>
+            <div class="feed-item-content">
+              <h4 class="feed-item-title">WRT Advanced certification cohort opens June 3.</h4>
+              <p class="feed-item-summary">Enrollment limited to 20 per region. Priority for franchises with active mitigation pipelines.</p>
+            </div>
+            <div class="feed-item-date"><span>2d ago</span></div>
+          </a>
+
+          <a href="#" class="feed-item">
+            <span class="feed-item-tag">Suggested · For you</span>
+            <div class="feed-item-content">
+              <h4 class="feed-item-title">Multi-unit performance benchmarking guide refreshed.</h4>
+              <p class="feed-item-summary">Updated comparison tools for owners managing two or more franchise units.</p>
+            </div>
+            <div class="feed-item-date"><span>Today</span></div>
+          </a>
+
+          <a href="#" class="feed-item">
+            <span class="feed-item-tag">Marketing</span>
+            <div class="feed-item-content">
+              <h4 class="feed-item-title">Q2 brand asset refresh now available in DAM.</h4>
+              <p class="feed-item-summary">Updated logos, lifestyle imagery, and seasonal campaign templates.</p>
+            </div>
+            <div class="feed-item-date"><span>4d ago</span></div>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <div class="ops-col">
+      <a href="#" class="storm-banner">
+        <svg class="map-bg" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M30 70 Q40 60 55 65 L70 55 Q85 50 95 60 L110 55 Q125 50 140 60 L155 70 Q170 80 165 95 L160 115 Q150 130 130 128 L100 130 Q75 132 60 125 L40 115 Q25 100 30 70 Z" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" fill="rgba(255,255,255,0.05)"/>
+          <circle cx="105" cy="85" r="14" fill="rgba(217, 223, 201, 0.25)"/>
+          <circle cx="105" cy="85" r="7" fill="rgba(217, 223, 201, 0.5)"/>
+          <circle cx="105" cy="85" r="3.5" fill="#d9dfc9"/>
+          <circle cx="105" cy="85" r="22" stroke="rgba(217, 223, 201, 0.3)" stroke-width="1" fill="none"/>
+        </svg>
+        <div class="storm-header">
+          <span class="storm-pulse"></span>
+          <span class="storm-label">Storm update</span>
+          <span class="storm-pill">Active</span>
+        </div>
+        <h3 class="storm-title">Gulf Coast severe weather event.</h3>
+        <p class="storm-detail">Deployment open across 4 counties in your region. 14 franchises responding.</p>
+      </a>
+
+      <section>
+        <div class="ops-section-header">
+          <div class="ops-section-name">Franchise health</div>
+          <div class="ops-section-meta">Live · 12 min ago</div>
+        </div>
+        <div class="health-grid">
+          <a href="#" class="health-card feature">
+            <span class="health-label">Audit performance</span>
+            <span class="health-value">94<span class="unit">%</span></span>
+            <span class="health-status"><span class="status-dot green"></span>On track · vs 91% last month</span>
+            <div class="audit-bars">
+              <span class="b-green"></span><span class="b-amber"></span><span class="b-red"></span>
+            </div>
+            <div class="audit-breakdown">
+              <div class="audit-stat"><div class="num">38</div><div class="lbl">Clean</div></div>
+              <div class="audit-stat"><div class="num amber">8</div><div class="lbl">At risk</div></div>
+              <div class="audit-stat"><div class="num red">1</div><div class="lbl">Flagged</div></div>
+            </div>
+          </a>
+          <a href="#" class="health-card">
+            <span class="health-label">APA status</span>
+            <span class="health-value">3<span class="unit">/5</span></span>
+            <span class="health-status"><span class="status-dot amber"></span>2 due soon</span>
+          </a>
+          <a href="#" class="health-card">
+            <span class="health-label">KPI health</span>
+            <span class="health-value">87<span class="unit">%</span></span>
+            <span class="health-status"><span class="status-dot amber"></span>6 need attention</span>
+          </a>
+          <a href="#" class="health-card tool">
+            <span class="health-label">Tableau</span>
+            <div class="tool-name-line"><span class="tool-name">Open dashboards</span><span class="tool-arrow-mini">↗</span></div>
+            <span class="health-status" style="margin-top:6px">KPMs · Reports · Benchmarks</span>
+          </a>
+          <a href="#" class="health-card tool">
+            <span class="health-label">WorkCenter</span>
+            <div class="tool-name-line"><span class="tool-name">Open jobs</span><span class="tool-arrow-mini">↗</span></div>
+            <span class="health-status" style="margin-top:6px">22 active · 4 pending</span>
+          </a>
+        </div>
+      </section>
+
+      <section>
+        <div class="ops-section-header">
+          <div class="ops-section-name">Persona hubs</div>
+          <div class="ops-section-meta">5 destinations</div>
+        </div>
+        <div class="hub-list">
+          <a href="#" class="hub-row"><span class="hub-num">01</span><div class="hub-info"><div class="hub-name">Owner & Management</div><div class="hub-tag">Tools · Resources · Insights</div></div><span class="hub-arrow">→</span></a>
+          <a href="#" class="hub-row"><span class="hub-num">02</span><div class="hub-info"><div class="hub-name">Marketing & BD</div><div class="hub-tag">Tools · Resources · Insights</div></div><span class="hub-arrow">→</span></a>
+          <a href="#" class="hub-row"><span class="hub-num">03</span><div class="hub-info"><div class="hub-name">Office & Administration</div><div class="hub-tag">Tools · Resources · Insights</div></div><span class="hub-arrow">→</span></a>
+          <a href="#" class="hub-row"><span class="hub-num">04</span><div class="hub-info"><div class="hub-name">Field Management</div><div class="hub-tag">Tools · Resources · Insights</div></div><span class="hub-arrow">→</span></a>
+          <a href="#" class="hub-row"><span class="hub-num">05</span><div class="hub-info"><div class="hub-name">Field Technicians</div><div class="hub-tag">Tools · Resources · Insights</div></div><span class="hub-arrow">→</span></a>
+        </div>
+      </section>
+
+      <section>
+        <div class="ops-section-header">
+          <div class="ops-section-name">Popular owner resources</div>
+          <div class="ops-section-meta">Quick access</div>
+        </div>
+        <div class="resource-grid">
+          <a href="#" class="resource-btn">
+            <div class="resource-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><rect x="7" y="13" width="3" height="5"/><rect x="12" y="9" width="3" height="9"/><rect x="17" y="6" width="3" height="12"/></svg></div>
+            <div class="resource-name">Tableau Dashboards</div>
+            <div class="resource-sub">KPMs · Reports</div>
+          </a>
+          <a href="#" class="resource-btn">
+            <div class="resource-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+            <div class="resource-name">WorkCenter</div>
+            <div class="resource-sub">Job operations</div>
+          </a>
+          <a href="#" class="resource-btn">
+            <div class="resource-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg></div>
+            <div class="resource-name">Owner Playbooks</div>
+            <div class="resource-sub">Strategy guides</div>
+          </a>
+          <a href="#" class="resource-btn">
+            <div class="resource-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+            <div class="resource-name">Compensation Tools</div>
+            <div class="resource-sub">Pay & incentives</div>
+          </a>
+        </div>
+      </section>
+
+      <a href="#" class="lookup-row">
+        <div class="lookup-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div>
+        <div class="lookup-text">
+          <div class="lookup-name">Look up people</div>
+          <div class="lookup-sub">By team · role · region</div>
+        </div>
+        <span class="lookup-arrow-letter">→</span>
+      </a>
+
+      <section>
+        <div class="ops-section-header">
+          <div class="ops-section-name">Franchise forum</div>
+          <div class="ops-section-meta">Recent threads</div>
+        </div>
+        <div class="forum-list">
+          <a href="#" class="forum-item">
+            <h4 class="forum-q">How are you handling Liberty Mutual's new subrogation portal?</h4>
+            <div class="forum-meta">
+              <span class="verified-mark">HQ Verified</span>
+              <span>14 replies · today</span>
+            </div>
+          </a>
+          <a href="#" class="forum-item">
+            <h4 class="forum-q">Best practices for storm deployment crew rotation?</h4>
+            <div class="forum-meta"><span>9 replies · 2d ago</span></div>
+          </a>
+          <a href="#" class="forum-item">
+            <h4 class="forum-q">Multi-unit profit sharing structures — comparing notes</h4>
+            <div class="forum-meta"><span>22 replies · 3d ago</span></div>
+          </a>
+        </div>
+      </section>
+
+      <div class="quick-row">
+        <a href="#" class="quick-link accent">
+          <div class="ql-name">SERVPRO Source</div>
+          <div class="ql-sub">Equipment & supplies</div>
+        </a>
+        <a href="#" class="quick-link dark">
+          <div class="ql-name">Service Desk</div>
+          <div class="ql-sub">Get support</div>
+        </a>
+      </div>
+
+      <a href="#" class="customize-link">
+        <strong>Customize this page</strong>
+        <span>→</span>
+      </a>
+    </div>
+
+  </div>
+
+  <footer class="page-footer">
+    <span>SERVPRONET · 2026</span>
+    <span>v3.0 · Owner & Management</span>
+  </footer>
+</main>
+
+<!-- RIGHT TOOLBAR -->
+<aside class="toolbar">
+  <div class="toolbar-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+  <div class="toolbar-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></div>
+  <div class="toolbar-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><rect x="7" y="13" width="3" height="5"/><rect x="12" y="9" width="3" height="9"/><rect x="17" y="6" width="3" height="12"/></svg></div>
+  <div class="toolbar-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h12a4 4 0 014 4v12H8a4 4 0 01-4-4V4z"/><path d="M4 16h16"/></svg></div>
+  <div class="toolbar-divider"></div>
+  <div class="toolbar-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 7l10-4 10 4-10 4-10-4z"/><path d="M6 9v5c0 2 3 3 6 3s6-1 6-3V9"/></svg></div>
+  <div class="toolbar-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></div>
+</aside>
+
+</body>
+</html>
